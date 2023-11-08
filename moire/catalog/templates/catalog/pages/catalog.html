@@ -1,0 +1,272 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}
+{% if title %}
+{{ title }}
+{% else %}
+Каталог
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<main class="content container">
+    <div class="content__top">
+
+      <div class="content__row">
+        <h1 class="content__title" style="font-size: 25px">
+          {% if title %}
+          {{ title }}
+          {% else %}
+          Каталог
+          {% endif %}
+        </h1>
+        <span class="content__info">
+          ( {{ quantity }} )
+        </span>
+      </div>
+    </div>
+
+    <div class="content__catalog">
+      <aside class="filter">
+        <form class="filter__form form" action="{% url 'catalog_app:product_filter' %}" method="get">
+          {% csrf_token %}
+          <fieldset class="form__block">
+            <legend class="form__legend">Цена</legend>
+            <label class="form__label">
+              <input class="form__input" type="text" name="min_price">
+            </label>
+            <label class="form__label">
+              <input class="form__input" type="text" name="max_price">
+            </label>
+          </fieldset>
+
+          <fieldset class="form__block">
+              <legend class="form__legend">Категория</legend>
+              <label class="form__label">
+                  <select class="form__select" name="cat">
+                      <option value="" selected>Все категории</option>
+                      {% for cat in categories %}
+                      <option value="{{ cat.id }}">{{ cat.title }}</option>
+                      {% endfor %}
+                  </select>
+              </label>
+          </fieldset>
+
+
+          <fieldset class="form__block">
+            <legend class="form__legend">Материал</legend>
+            <ul class="check-list">
+              <li class="check-list__item">
+                <label class="check-list__label">
+                  <input class="check-list__check sr-only" type="checkbox" name="material" value="LN">
+                  <span class="check-list__desc">
+                    лен
+                    <span>({{ filter_quantity.LN }})</span>
+                  </span>
+                </label>
+              </li>
+              <li class="check-list__item">
+                <label class="check-list__label">
+                  <input class="check-list__check sr-only" type="checkbox" name="material" value="CT">
+                  <span class="check-list__desc">
+                    хлопок
+                    <span>({{ filter_quantity.CT }})</span>
+                  </span>
+                </label>
+              </li>
+              <li class="check-list__item">
+                <label class="check-list__label">
+                  <input class="check-list__check sr-only" type="checkbox" name="material" value="WL">
+                  <span class="check-list__desc">
+                    шерсть
+                    <span>({{ filter_quantity.WL }})</span>
+                  </span>
+                </label>
+              </li>
+              <li class="check-list__item">
+                <label class="check-list__label">
+                  <input class="check-list__check sr-only" type="checkbox" name="material" value="SL">
+                  <span class="check-list__desc">
+                    шелк
+                    <span>({{ filter_quantity.SL }})</span>
+                  </span>
+                </label>
+              </li>
+            </ul>
+          </fieldset>
+
+          <fieldset class="form__block">
+            <legend class="form__legend">Коллекция</legend>
+            <ul class="check-list">
+              <li class="check-list__item">
+                <label class="check-list__label">
+                  <input class="check-list__check sr-only" type="checkbox" name="collection" value="SM">
+                  <span class="check-list__desc">
+                    лето
+                    <span>({{ filter_quantity.SM }})</span>
+                  </span>
+                </label>
+              </li>
+              <li class="check-list__item">
+                <label class="check-list__label">
+                  <input class="check-list__check sr-only" type="checkbox" name="collection" value="WN">
+                  <span class="check-list__desc">
+                    зима
+                    <span>({{ filter_quantity.WN }})</span>
+                  </span>
+                </label>
+              </li>
+              <li class="check-list__item">
+                <label class="check-list__label">
+                  <input class="check-list__check sr-only" type="checkbox" name="collection" value="AU">
+                  <span class="check-list__desc">
+                    весна
+                    <span>({{ filter_quantity.AU }})</span>
+                  </span>
+                </label>
+              </li>
+              <li class="check-list__item">
+                <label class="check-list__label">
+                  <input class="check-list__check sr-only" type="checkbox" name="collection" value="SP">
+                  <span class="check-list__desc">
+                    осень
+                    <span>({{ filter_quantity.SP }})</span>
+                  </span>
+                </label>
+              </li>
+            </ul>
+          </fieldset>
+
+          <button class="filter__submit button button--primery" type="submit">
+            Применить
+          </button>
+          <a class="filter__reset button button--second" type="button" href="{% url 'catalog_app:catalog' %}">
+            <span style="margin-left: 14px">Сбросить</span>
+          </a>
+        </form>
+      </aside>
+
+      <section class="catalog">
+        <section>
+            <div class="Sort">
+                <div class="Sort-variants">
+                    {% if not 'filter' in request.path %}
+                    <a class="header__info" style="color: black" href="?sort_by=number_of_views">Популярности &#8595;&#8593;</a>
+                    <a class="header__info" style="color: black" href="?sort_by=price">&nbsp; Цене &#8595;&#8593;</a>
+                    {% else %}
+                    <a class="header__info" style="color: black" href="?{{ request.GET.urlencode }}&sort_by=number_of_views">Популярности &#8595;&#8593;</a>
+                    <a class="header__info" style="color: black" href="?{{ request.GET.urlencode }}&sort_by=price">&nbsp; Цене &#8595;&#8593;</a>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+        <ul class="catalog__list">
+          {% for item in items %}
+          <li class="catalog__item">
+            <a class="catalog__pic" href="{% url 'catalog_app:item_detail' pk=item.pk%}">
+              <img src="{{item.image}}" srcset="{{item.image}}" alt="{{ item.title }}">
+            </a>
+
+            <h3 class="catalog__title">
+              <a href="{% url 'catalog_app:item_detail' pk=item.pk%}">
+                {{ item.title | truncatechars:25 }}
+              </a>
+            </h3>
+
+
+            <span class="catalog__price">
+              {{ item.price}} ₽
+            </span>
+
+            <ul class="colors colors--black">
+              {% for c in item.colors.all %}
+              <li class="colors__item">
+                <label class="colors__label">
+                  <input class="colors__radio sr-only" type="radio" name="{{ c.name }}" value="{{ c.code }}" checked="">
+                  <span class="colors__value" style="background-color: {{ c.code }}">
+                  </span>
+                </label>
+              </li>
+              {% endfor %}
+            </ul>
+          </li>
+          {% endfor%}
+        </ul>
+
+
+        <ul class="catalog__pagination pagination">
+    {% if page.has_previous %}
+    <li class="pagination__item">
+        <a class="pagination__link pagination__link--arrow" aria-label="Предыдущая страница" href="{% if 'filter' in request.path %}?{{ request.GET.urlencode }}&page={{ page.previous_page_number }}{% else %}?page={{ page.previous_page_number }}{% endif %}">
+            <svg width="8" height="14" fill="currentColor">
+                <use xlink:href="#icon-arrow-left"></use>
+            </svg>
+        </a>
+    </li>
+    {% else %}
+    <li class="pagination__item">
+        <a class="pagination__link pagination__link--arrow pagination__link--disabled" aria-label="Предыдущая страница">
+            <svg width="8" height="14" fill="currentColor">
+                <use xlink:href="#icon-arrow-left"></use>
+            </svg>
+        </a>
+    </li>
+    {% endif %}
+
+    {% for num in page.paginator.page_range %}
+    <li class="pagination__item">
+        <a class="pagination__link {% if num == page.number %}pagination__link--current{% endif %}" href="{% if 'filter' in request.path %}?{{ request.GET.urlencode }}&page={{ num }}{% else %}?page={{ num }}{% endif %}">
+            {{ num }}
+        </a>
+    </li>
+    {% endfor %}
+
+    {% if page.has_next %}
+    <li class="pagination__item">
+        <a class="pagination__link pagination__link--arrow" href="{% if 'filter' in request.path %}?{{ request.GET.urlencode }}&page={{ page.next_page_number }}{% else %}?page={{ page.next_page_number }}{% endif %}" aria-label="Следующая страница">
+            <svg width="8" height="14" fill="currentColor">
+                <use xlink:href="#icon-arrow-right"></use>
+            </svg>
+        </a>
+    </li>
+    {% else %}
+    <li class="pagination__item">
+        <a class="pagination__link pagination__link--arrow pagination__link--disabled" aria-label="Следующая страница">
+            <svg width="8" height="14" fill="currentColor">
+                <use xlink:href="#icon-arrow-right"></use>
+            </svg>
+        </a>
+    </li>
+    {% endif %}
+</ul>
+
+          {% if text %}
+          <p style="text-align:center; max-width: 700px">
+              {{ text }}
+          </p>
+          {% endif %}
+
+
+      </section>
+    </div>
+  </main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.filter__form');
+    form.addEventListener('submit', function() {
+      const inputs = form.querySelectorAll('input');
+      for (const input of inputs) {
+        if (input.value === '') {
+          input.removeAttribute('name');
+        }
+      }
+    });
+  });
+</script>
+
+{% endblock %}

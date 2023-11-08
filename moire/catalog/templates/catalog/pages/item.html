@@ -1,0 +1,209 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}
+{% if title %}
+{{ title }}
+{% else %}
+Moire - магазин сексуального женского белья
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<main class="content container">
+    <div class="content__top">
+        <ul class="breadcrumbs">
+            <li class="breadcrumbs__item">
+                <a class="breadcrumbs__link" href="{% url 'catalog_app:catalog' %}">
+                    Каталог
+                </a>
+            </li>
+            <li class="breadcrumbs__item">
+                <a class="breadcrumbs__link" href="{% url 'catalog_app:category' item.category.slug %}">
+                    {{ item.category.title }}
+                </a>
+            </li>
+            <li class="breadcrumbs__item">
+                <a class="breadcrumbs__link">
+                    Носки с принтом мороженое
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <section class="item">
+        <div class="item__pics pics">
+            <div class="pics__wrapper">
+                <img width="570" height="570" src="{{ item.image }}" srcset="" alt="{{ item.title }}">
+            </div>
+            <ul class="pics__list">
+                {% for image in item.images.all %}
+                <li class="pics__item">
+                    <a href="" class="pics__link pics__link--current">
+                        <img class="gallery_photo" width="98" height="98" src="{{ image.img }}">
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+
+        <div class="item__info">
+            <span class="item__code">Артикул: {{ item.id }}</span>
+            <h2 class="item__title">
+                {{ item.title }}
+            </h2>
+            <b style="font-size: 18px">
+                {{ item.price }} ₽
+            </b>
+            <ul class="stars">
+                <li class="star">&#10029;</li>
+                <li class="star">&#10029;</li>
+                <li class="star">&#10029;</li>
+                <li class="star">&#10029;</li>
+                <li class="star">&#10029;</li>
+            </ul>
+            <div class="item__form">
+                <form class="form" action="{% url 'cart:cart_add' item.id %}" method="POST">
+                    <div class="item__row item__row--center">
+                        <div class="form__counter">
+                            <button type="button" aria-label="Убрать один товар" class="decrement" onclick="decrementValue()">
+                                <svg width="12" height="12" fill="currentColor">
+                                    <use xlink:href="#icon-minus"></use>
+                                </svg>
+                            </button>
+                            <input type="hidden" name="quantity" class="hidden_quantity" value="1">
+                            <span name="quantity" class="quantity" style="margin: 10px" >1</span>
+                            <button type="button" aria-label="Добавить один товар" class="increment" onclick="incrementValue()">
+                                <svg width="12" height="12" fill="currentColor">
+                                    <use xlink:href="#icon-plus"></use>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="item__row">
+                        <fieldset class="form__block">
+                            <legend class="form__legend">Цвет</legend>
+                            <ul class="colors colors--black">
+                                {% for c in item.colors.all %}
+                                <li class="colors__item">
+                                    <label class="colors__label">
+                                        <input class="colors__radio sr-only" type="radio" name="color_id"
+                                               value="{{ c.id }}" checked>
+                                        <span class="colors__value" style="background-color: {{ c.code }}">
+                                        </span>
+                                    </label>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </fieldset>
+                    </div>
+
+                    {% csrf_token %}
+                    <button class="item__button button button--primery" type="submit">
+                        В корзину
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+        <div class="item__desc">
+            <ul class="tabs">
+                <li class="tabs__item">
+                    <a class="tabs__link tabs__link--current" data-tab="infoTab">
+                        Информация о товаре
+                    </a>
+                </li>
+                <li class="tabs__item">
+                    <a class="tabs__link" data-tab="deliveryTab">
+                        Доставка и возврат
+                    </a>
+                </li>
+            </ul>
+
+            <div class="item__content" id="infoTab">
+                <h3>Материал:</h3>
+                <p>{{ item.material }}</p>
+                <h3>Коллекция:</h3>
+                <p>{{ item.collection }}</p>
+                <h3>Описание:</h3>
+                <p>{{ item.description }}</p>
+            </div>
+
+            <div class="item__content" id="deliveryTab" style="display: none">
+                <h3>Информация о доставке и возврате</h3>
+                {% lorem %}
+            </div>
+
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+    let stars = document.querySelectorAll('.star');
+        let output = document.querySelectorAll('.output');
+        let starsUL = document.querySelector('.stars');
+        stars.forEach((srat, index) => {
+          srat.starValue = (index +1);
+          srat.addEventListener("click", starRate);
+        })
+        function starRate(e) {
+          stars.forEach((star, index) => {
+            if (index < e.target.starValue) {
+              star.classList.add("orange");
+            } else {star.classList.remove("orange")}
+        });
+      }
+
+
+    const tabLinks = document.querySelectorAll('.tabs__link');
+    const tabContents = document.querySelectorAll('.item__content');
+
+    tabLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        tabContents.forEach(content => {
+          content.style.display = 'none';
+        });
+
+        const tabId = link.getAttribute('data-tab');
+
+        document.getElementById(tabId).style.display = 'block';
+
+        tabLinks.forEach(l => {
+          l.classList.remove('tabs__link--current');
+        });
+
+        link.classList.add('tabs__link--current');
+      });
+    });
+
+    function decrementValue() {
+    let quantityValue = document.querySelector('.quantity');
+    let z = parseInt(quantityValue.textContent);
+
+    if (z > 1) {
+        quantityValue.textContent = z - 1;
+    } else {
+        quantityValue.textContent = 1;
+    }
+
+    document.querySelector('.hidden_quantity').value = quantityValue.textContent;
+    console.log(document.querySelector('.hidden_quantity').value);
+    }
+
+
+    function incrementValue() {
+        let quantityValue = document.querySelector('.quantity');
+        let z = parseInt(quantityValue.textContent);
+        quantityValue.textContent =  (z + 1);
+        document.querySelector('.hidden_quantity').value = quantityValue.textContent;
+        console.log(document.querySelector('.hidden_quantity').value)
+    }
+
+</script>
+{% endblock %}

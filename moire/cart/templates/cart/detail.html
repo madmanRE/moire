@@ -1,0 +1,144 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}
+{% if title %}
+{{ title }}
+{% else %}
+Каталог
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<main class="content container">
+    <div class="content__top">
+        <ul class="breadcrumbs">
+            <li class="breadcrumbs__item">
+                <a class="breadcrumbs__link" href="{% url 'catalog_app:catalog' %}">
+                    Каталог
+                </a>
+            </li>
+            <li class="breadcrumbs__item">
+                <a class="breadcrumbs__link">
+                    Корзина
+                </a>
+            </li>
+        </ul>
+
+        <div class="content__row">
+            <h1 class="content__title">
+                Корзина
+            </h1>
+            <span class="content__info">
+          ( {{len}} )
+        </span>
+        </div>
+    </div>
+
+    <section class="cart">
+            <div class="cart__field">
+                <ul class="cart__list">
+                    {% for product in cart %}
+                    {% with item=product.item %}
+                    <li class="cart__item product">
+                        <div class="product__pic">
+                            <img src="{{ item.image }}" width="120" height="120"
+                                 srcset="img/product-square-4@2x.jpg 2x" alt="{{ item.title }}">
+                        </div>
+                        <h3 class="product__title">
+                            {{ item.title }}
+                        </h3>
+                        <p class="product__info product__info--color">
+                            Цвет:
+                            <span>
+                              <i style="background-color: {{ item.colors.first.code }}"></i>
+                              {{ item.colors.first.name }}
+                            </span>
+                        </p>
+                        <span class="product__code">
+                Артикул: {{ item.id }}
+              </span>
+
+                        <div class="product__counter form__counter">
+                            <button type="button" aria-label="Убрать один товар" onclick="decrementValue({{item.id}})">
+                                <svg width="10" height="10" fill="currentColor">
+                                    <use xlink:href="#icon-minus"></use>
+                                </svg>
+                            </button>
+                            <span style="margin: 10px" id="item{{item.id}}">{{ product.quantity }}</span>
+                            <button type="button" aria-label="Добавить один товар"
+                                    onclick="incrementValue({{item.id}})">
+                                <svg width="10" height="10" fill="currentColor">
+                                    <use xlink:href="#icon-plus"></use>
+                                </svg>
+                            </button>
+                        </div>
+
+
+                        <b class="product__price">
+                            {{product.total_price}} ₽
+                        </b>
+
+                        <form action="{% url 'cart:cart_remove' item.id %}"
+                              method="post">
+                            <button class="product__del button-del" type="submit" aria-label="Удалить товар из корзины" onclick="console.log({{item.id}})">
+                                <svg width="20" height="20" fill="currentColor">
+                                    <use xlink:href="#icon-close"></use>
+                                </svg>
+                            </button>
+                            {% csrf_token %}
+                        </form>
+
+                    </li>
+                    {% endwith %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="cart__block">
+                <p class="cart__desc">
+                    Мы&nbsp;посчитаем стоимость доставки на&nbsp;следующем этапе
+                </p>
+                <p class="cart__price">
+                    Итого: <span>{{cart.get_total_price}} ₽</span>
+                </p>
+
+                <a href="{% url 'orders:order_create' %}" class="cart__button button button--primery" type="submit" style="width: 200px">
+                    Оформить заказ
+                </a>
+            </div>
+
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+    function decrementValue(itemId) {
+        let quantityValue = document.querySelector(`#item${itemId}`);
+        let z = parseInt(quantityValue.textContent);
+
+        if (z > 1) {
+            quantityValue.textContent = z - 1;
+        } else {
+            quantityValue.textContent = 1;
+        }
+        console.log(quantityValue.textContent);
+
+    }
+
+    function incrementValue(itemId) {
+        let quantityValue = document.querySelector(`#item${itemId}`);
+        if (quantityValue) {
+            let z = parseInt(quantityValue.textContent);
+            quantityValue.textContent = (z + 1);
+            console.log(quantityValue.textContent);
+        } else {
+            console.error(`Элемент с идентификатором ${itemId} не найден`);
+        }
+    }
+
+
+</script>
+{% endblock %}

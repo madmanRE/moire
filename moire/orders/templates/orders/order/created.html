@@ -1,0 +1,115 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}
+{% if title %}
+{{ title }}
+{% else %}
+Спасибо за заказ
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<main class="content container">
+    <div class="content__top">
+      <ul class="breadcrumbs">
+        <li class="breadcrumbs__item">
+          <a class="breadcrumbs__link" href="{% url 'catalog_app:catalog' %}">
+            Спасибо за заказ
+          </a>
+        </li>
+        <li class="breadcrumbs__item">
+          <a class="breadcrumbs__link" href="{% url 'cart:cart_detail' %}">
+            Корзина
+          </a>
+        </li>
+        <li class="breadcrumbs__item">
+          <a class="breadcrumbs__link">
+            Оформление заказа
+          </a>
+        </li>
+      </ul>
+
+      <h1 class="content__title">
+        Заказ оформлен <span>№ {{order.id}}</span>
+      </h1>
+    </div>
+
+    <section class="cart">
+      <form class="cart__form form" action="#" method="POST">
+        <div class="cart__field">
+          <p class="cart__message">
+            Благодарим за&nbsp;выбор нашего магазина. На&nbsp;Вашу почту придет письмо с&nbsp;деталями заказа.
+            Наши менеджеры свяжутся с&nbsp;Вами в&nbsp;течение часа для уточнения деталей доставки.
+          </p>
+
+          <ul class="dictionary">
+            <li class="dictionary__item">
+              <span class="dictionary__key">
+                Получатель
+              </span>
+              <span class="dictionary__value">
+                {{ order.name }}
+              </span>
+            </li>
+            <li class="dictionary__item">
+              <span class="dictionary__key">
+                Адрес доставки
+              </span>
+              <span class="dictionary__value">
+                {{ order.address }}
+              </span>
+            </li>
+            <li class="dictionary__item">
+              <span class="dictionary__key">
+                Телефон
+              </span>
+              <span class="dictionary__value">
+                {{ order.phone }}
+              </span>
+            </li>
+            <li class="dictionary__item">
+              <span class="dictionary__key">
+                Email
+              </span>
+              <span class="dictionary__value">
+                {{ order.email }}
+              </span>
+            </li>
+            <li class="dictionary__item">
+              <span class="dictionary__key">
+                Способ оплаты
+              </span>
+              <span class="dictionary__value">
+                {% if order.paid_variant == 'CARD' %}
+                "Банковской картой"
+                {% else %}
+                "Оплата наличными при получении"
+                {% endif %}
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="cart__block">
+          <ul class="cart__orders">
+            {% for item in order.items.all %}
+            <li class="cart__order">
+              <h3>{{ item.title }}</h3>
+              <b>{{ item.get_cost }} ₽</b>
+              <span>Артикул: {{item.id}}</span>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <div class="cart__total">
+            <p>Доставка: {% if order.delivery == 'SD' %}<b>бесплатно</b>{% else %}500 ₽{% endif %}</p>
+            <p>Итого товара: <b>{{order.get_total_quantity}}</b> на сумму <b>{{order.get_total_cost}} ₽</b></p>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+{% endblock %}
+
+

@@ -1,0 +1,28 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}
+Вход
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<p style="position: center">Вы уже выполнили вход</p>
+{% else %}
+<div class="entry-content">
+  <div class="login">
+    <h1>Введите логин и пароль</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <p class="remember_me">
+        <label><input type="checkbox" name="remember_me">Запомнить меня</label>
+      </p>
+      <input type="hidden" name="next" value="{{ next }}">
+      <p class="submit"><input type="submit" name="commit" value="Войти"></p>
+    </form>
+  </div>
+  <div class="clearfix"></div>
+</div>
+{% endif %}
+
+{% endblock %}
