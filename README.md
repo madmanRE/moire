@@ -1,5 +1,5 @@
 # Интернте-магазин нижнего белья Moire
-![Главная страница]([https://example.com/images/logo.png](https://img.hhcdn.ru/photo/739967230.png?t=1699555692&h=TqNyc3PJPVzDpMEmN-6FUg)https://img.hhcdn.ru/photo/739967230.png?t=1699555692&h=TqNyc3PJPVzDpMEmN-6FUg)
+![Главная страница](https://img.hhcdn.ru/photo/739967230.png?t=1699555692&h=TqNyc3PJPVzDpMEmN-6FUg)
 
 Представляет собой MVP модель:
 1. Главная
